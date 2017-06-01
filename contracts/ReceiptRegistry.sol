@@ -16,20 +16,24 @@ contract ReceiptRegistry is Mortal {
     mapping(address => Receipt[]) private receipts;
 
     // Events
+    event LogEvent(bytes32 message);
+
+    event ReceiptStored(address receiptOwner);
+    event ReceiptUpdated(address receiptOwner);
+    event ReceiptDeleted(address receiptOwner);
 
     // Modifiers
     modifier only_when_new_receipt(bytes32 id) {
-        if(retrieveReceipt(msg.sender, id).isDeleted) {
-            _;
-        }
-        throw;
+        LogEvent(id);
+        Receipt memory receipt = retrieveReceipt(msg.sender, id);
+        require(receipt.receiptId == bytes32('') || (receipt.receiptId == id && receipt.isDeleted));
+        _;
     }
 
     modifier only_when_existing_receipt(bytes32 id) {
-        if(! retrieveReceipt(msg.sender, id).isDeleted) {
-            _;
-        }
-        throw;
+        Receipt memory receipt = retrieveReceipt(msg.sender, id);
+        require(receipt.receiptId == id && ! receipt.isDeleted);
+        _;
     }
 
     // Constructor
@@ -41,6 +45,7 @@ contract ReceiptRegistry is Mortal {
     // Create
     function storeReceipt(bytes32 _receiptId, bytes32 _imageHash, bytes32 _metadataHash) external only_when_new_receipt(_receiptId) {
         receipts[msg.sender].push(Receipt(_receiptId, _imageHash, _metadataHash, false));
+        ReceiptStored(msg.sender);
     }
 
     // Read
@@ -68,5 +73,6 @@ contract ReceiptRegistry is Mortal {
                 return tempReceipt;
             }
         }
+        return Receipt(bytes32(''), bytes32(''), bytes32(''), false);
     }
 }
