@@ -112,15 +112,15 @@ contract('ReceiptRegistry', function(accounts) {
 
             let receiptOwner1 = accounts[1];
 
-            return receiptRegistryInstance.retrieveNumReceiptsStored( {from: receiptOwner1} )
+            return killableReceiptRegistryInstance.retrieveNumReceiptsStored( {from: receiptOwner1} )
             .then( (numReceipts) => {
                 assert.equal(numReceipts.toNumber(), 0, 'Expected that initially that there would not be a receipts stored');
 
                 // Store a receipt
-                return receiptRegistryInstance.storeReceipt(receiptId1, imageHash1, metadataHash1, {from: receiptOwner1});
+                return killableReceiptRegistryInstance.storeReceipt(receiptId1, imageHash1, metadataHash1, {from: receiptOwner1});
             })
             .then( () => {
-                return receiptRegistryInstance.retrieveNumReceiptsStored( {from: receiptOwner1} );
+                return killableReceiptRegistryInstance.retrieveNumReceiptsStored( {from: receiptOwner1} );
             })
             .then( (numReceipts) => {
                 assert.equal(numReceipts.toNumber(), 1, 'Expected that the newly stored receipt would be reflected');
