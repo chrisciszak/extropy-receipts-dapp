@@ -1,5 +1,6 @@
 var ReceiptRegistry = artifacts.require("./ReceiptRegistry.sol");
 const EthereumEventAssertions = require('../../ethereum-standard-contracts/test/javascript/ethereumEventAssertions.js');
+const EthereumValueAssertions = require('../../ethereum-standard-contracts/test/javascript/ethereumValueAssertions.js');
 
 contract('ReceiptRegistry', function(accounts) {
     var receiptRegistryInstance;
@@ -103,4 +104,33 @@ contract('ReceiptRegistry', function(accounts) {
         })
     });
 
+    describe('Read tests', () => {
+        it('retrieve a single receipt stored in the contract', () => {
+            return receiptRegistryInstance.retrieveNumReceiptsStored( {from: receiptOwner2} )
+            .then( (numReceipts) => {
+                assert.equal(numReceipts.toNumber(), 1, 'Expected that the newly stored receipt would be reflected');
+
+                return receiptRegistryInstance.retrieveReceipt(receiptId1, {from: receiptOwner2});
+            })
+            .then( (result) => {
+                assert.equal(3, result.length, 'Expected that all three identifiers would be returned.');
+                EthereumValueAssertions.assertBytes32EqualsHexString(result[0], receiptId1);
+                EthereumValueAssertions.assertBytes32EqualsHexString(result[1], imageHash1);
+                EthereumValueAssertions.assertBytes32EqualsHexString(result[2], metadataHash1);
+            })
+        })
+
+        it('retrieve a single receipt ID stored in the contract', () => {
+            return receiptRegistryInstance.retrieveNumReceiptsStored( {from: receiptOwner2} )
+            .then( (numReceipts) => {
+                assert.equal(numReceipts.toNumber(), 1, 'Expected that the newly stored receipt would be reflected');
+
+                return receiptRegistryInstance.retrieveStoredReceiptIds({from: receiptOwner2});
+            })
+            .then( (result) => {
+                assert.equal(1, result.length, 'Expected that there would only be one ID stored / retrieved.');
+                EthereumValueAssertions.assertBytes32EqualsHexString(result[0], receiptId1);
+            })
+        })
+    });
 });
