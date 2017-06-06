@@ -49,15 +49,24 @@ contract ReceiptRegistry is Mortal {
     }
 
     // Read
-    function retrieveReceipt(bytes32 id) constant external returns (bytes32, bytes32) {
+    function retrieveReceipt(bytes32 id) constant external returns (bytes32, bytes32, bytes32) {
         Receipt memory tempReceipt = retrieveReceipt(msg.sender, id);
-        return (tempReceipt.imageHash, tempReceipt.metadataHash);
+        return (tempReceipt.receiptId ,tempReceipt.imageHash, tempReceipt.metadataHash);
     }
 
     function retrieveNumReceiptsStored() constant external returns (uint) {
         return receipts[msg.sender].length;
     }
 
+    function retrieveStoredReceiptIds() constant external returns (bytes32[]) {
+        Receipt[] tempReceipts = receipts[msg.sender];
+        bytes32[] memory ids = new bytes32[](tempReceipts.length);
+        for(uint i = 0; i < tempReceipts.length; i++) {
+            Receipt tempReceipt = tempReceipts[i];
+            ids[i] = tempReceipt.receiptId  ;
+        }
+        return ids;
+    }
     // Update
 
 
