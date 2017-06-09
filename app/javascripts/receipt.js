@@ -1,14 +1,10 @@
 // Public
-function Receipt(_receiptId, _storeId, _imageHash, _metadataHash) {
+function Receipt(_receiptId, _storeId, _imageHash, _metadataHash, _blockNum) {
     this.receiptId = _receiptId;
     this.storeId = _storeId;
     this.imageHash = _imageHash;
     this.metadataHash = _metadataHash;
-    this.isDeleted = false;
-}
-
-Receipt.prototype.markAsDeleted = function(receipt) {
-    receipt.isDeleted = true;
+    this.blockNum = _blockNum;
 }
 
 // Static function
