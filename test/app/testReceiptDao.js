@@ -16,11 +16,17 @@ var receiptRegistryInstance;
 var web3;
 var accounts;
 var deployingAccount;
+var user1;
+var user2;
 
 const initialReceiptId = 'CD87EFA868F333C135F67798D7E0E2D99863996BCFCCCA37DCE4A0BCA580DD52';
+const receiptId2 = '1D087C4E4EF875470CD8F2E186AC05C7CC65F73CFC4393CEE241871950C0AC1A';
 const initialStoreId = 1;
+const storeId2 = 2;
 const initialImageHash = 'QmT4AeWE9Q9EaoyLJiqaZuYQ8mJeq4ZBncjjFH9dQ9uDVA';
+const imageHash2 = 'QmdiA1atSBgU178s5rsWont8cYns3fmwHxELTpiP9uFfLW';
 const initialMetadataHash = 'QmT9qk3CRYbFDWpDFYeAv8T8H1gnongwKhh5J68NLkLir6';
+const metadataHash2 = 'QmT9qk3CRYbFDWpDFYeAv8T8H1gnongwKhh5J68NLkLir6';
 
 before( () => {
     if (web3 === undefined) {
@@ -39,6 +45,8 @@ before( () => {
 
       accounts = accs;
       deployingAccount = accounts[0];
+      user1 = accounts[1];
+      user2 = accounts[2];
     });
 
     if(receiptRegistryInstance === undefined || ReceiptRegistry === undefined) {
@@ -63,17 +71,93 @@ describe('Receipt DAO tests:', () => {
             return receiptDao.retrieveAllReceipts().should.be.rejectedWith(TypeError);
         });
 
-        it('should be true that only the initial event is returned', () => {
+        it('should be true that only the initial event / receipt is returned', () => {
             return receiptDao.retrieveAllReceipts(deployingAccount)
             .then((receipts) => {
                 assert.equal(receipts.size, 1, 'Expected that only the initial receipt would be retrieved');
-                for (let receipt of receipts.values()) {
-                    assert.equal(receipt.receiptId, initialReceiptId, 'Expected the retrieved id to match');
-                    assert.equal(receipt.storeId, initialStoreId, 'Expected the retrieved store id to match');
-                    assert.equal(receipt.imageHash, initialImageHash, 'Expected the retrieved image hash to match');
-                    assert.equal(receipt.metadataHash, initialMetadataHash, 'Expected the retrieved metadata hash to match');
-                }
+                var receipt = Array.from(receipts.values())[0];
+                assert.equal(receipt.receiptId, initialReceiptId, 'Expected the retrieved id to match');
+                assert.equal(receipt.storeId, initialStoreId, 'Expected the retrieved store id to match');
+                assert.equal(receipt.imageHash, initialImageHash, 'Expected the retrieved image hash to match');
+                assert.equal(receipt.metadataHash, initialMetadataHash, 'Expected the retrieved metadata hash to match');
+            })
+            .should.be.fulfilled;
+        });
 
+        it('should be true that a user does not have any receipt stored then none are returned', () => {
+            return receiptDao.retrieveAllReceipts(user2)
+            .then((receipts) => {
+                console.log(receipts);
+                assert.equal(receipts.size, 0, 'Expected that only the initial receipt would be retrieved');
+                var receipt = Array.from(receipts.values())[0];
+            })
+            .should.be.fulfilled;
+        });
+
+        it('should be true that only the single receipt is returned for a new address', () => {
+            return receiptRegistryInstance.storeReceipt(initialReceiptId, initialStoreId, initialImageHash, initialMetadataHash, {from: user1})
+            .then( (results) => {
+                return receiptDao.retrieveAllReceipts(user1);
+            })
+            .then((receipts) => {
+                assert.equal(receipts.size, 1, 'Expected that only the initial receipt would be retrieved');
+                var receipt = Array.from(receipts.values())[0];
+                assert.equal(receipt.receiptId, initialReceiptId, 'Expected the retrieved id to match');
+                assert.equal(receipt.storeId, initialStoreId, 'Expected the retrieved store id to match');
+                assert.equal(receipt.imageHash, initialImageHash, 'Expected the retrieved image hash to match');
+                assert.equal(receipt.metadataHash, initialMetadataHash, 'Expected the retrieved metadata hash to match');
+            })
+            .should.be.fulfilled;
+        });
+
+
+        it('should be true that only the same receipt details can exist on two different stores and be retrieved', () => {
+            return receiptRegistryInstance.storeReceipt(initialReceiptId, storeId2, initialImageHash, initialMetadataHash, {from: user1})
+            .then( (results) => {
+                return receiptDao.retrieveAllReceipts(user1);
+            })
+            .then((receipts) => {
+                assert.equal(receipts.size, 2, 'Expected that only the initial receipt would be retrieved');
+                var receipt = Array.from(receipts.values())[0];
+                assert.equal(receipt.receiptId, initialReceiptId, 'Expected the retrieved id to match');
+                assert.equal(receipt.storeId, initialStoreId, 'Expected the retrieved store id to match');
+                assert.equal(receipt.imageHash, initialImageHash, 'Expected the retrieved image hash to match');
+                assert.equal(receipt.metadataHash, initialMetadataHash, 'Expected the retrieved metadata hash to match');
+
+                receipt = Array.from(receipts.values())[1];
+                assert.equal(receipt.receiptId, initialReceiptId, 'Expected the retrieved id to match');
+                assert.equal(receipt.storeId, storeId2, 'Expected the retrieved store id to match');
+                assert.equal(receipt.imageHash, initialImageHash, 'Expected the retrieved image hash to match');
+                assert.equal(receipt.metadataHash, initialMetadataHash, 'Expected the retrieved metadata hash to match');
+
+            })
+            .should.be.fulfilled;
+        });
+
+        it('should be true that multiple receipts can be stored and be retrieved', () => {
+            return receiptRegistryInstance.storeReceipt(receiptId2, storeId2, imageHash2, metadataHash2, {from: user1})
+            .then( (results) => {
+                return receiptDao.retrieveAllReceipts(user1);
+            })
+            .then((receipts) => {
+                assert.equal(receipts.size, 3, 'Expected that only the initial receipt would be retrieved');
+                var receipt = Array.from(receipts.values())[0];
+                assert.equal(receipt.receiptId, initialReceiptId, 'Expected the retrieved id to match');
+                assert.equal(receipt.storeId, initialStoreId, 'Expected the retrieved store id to match');
+                assert.equal(receipt.imageHash, initialImageHash, 'Expected the retrieved image hash to match');
+                assert.equal(receipt.metadataHash, initialMetadataHash, 'Expected the retrieved metadata hash to match');
+
+                receipt = Array.from(receipts.values())[1];
+                assert.equal(receipt.receiptId, initialReceiptId, 'Expected the retrieved id to match');
+                assert.equal(receipt.storeId, storeId2, 'Expected the retrieved store id to match');
+                assert.equal(receipt.imageHash, initialImageHash, 'Expected the retrieved image hash to match');
+                assert.equal(receipt.metadataHash, initialMetadataHash, 'Expected the retrieved metadata hash to match');
+
+                receipt = Array.from(receipts.values())[2];
+                assert.equal(receipt.receiptId, receiptId2, 'Expected the retrieved id to match');
+                assert.equal(receipt.storeId, storeId2, 'Expected the retrieved store id to match');
+                assert.equal(receipt.imageHash, imageHash2, 'Expected the retrieved image hash to match');
+                assert.equal(receipt.metadataHash, metadataHash2, 'Expected the retrieved metadata hash to match');
             })
             .should.be.fulfilled;
         });
