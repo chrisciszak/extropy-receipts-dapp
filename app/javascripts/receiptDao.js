@@ -17,48 +17,53 @@ function init() {
     }
 
     if(receiptRegistryInstance === undefined || ReceiptRegistry === undefined) {
-        console.log("Initialising contract instance");
-
         ReceiptRegistry = contract(receiptRegistryAbi);
         ReceiptRegistry.setProvider(web3.currentProvider);
 
-        ReceiptRegistry.deployed().then((instance) => {
+        return ReceiptRegistry.deployed().then((instance) => {
             receiptRegistryInstance = instance;
         });
     }
+
+    return Promise.resolve();
 }
 
-// Private
-/*function aggregate(username, permalink) {
-    return steem.formatter.commentPermlink(username, permalink);
-}*/
+function getEvents(instance, paramsObj, argsObj) {
+    return new Promise(function(resolve, reject) {
+        instance.ReceiptStored({}, {fromBlock: 0, toBlock: 'latest'}).get( (err, result) => {
+            if(err) {
+                reject(err);
+            }
+            resolve(result);
+        });
+    });
+}
 
-var retrieveAllReceipts = function(address, callback) {
-    init();
-
+var retrieveAllReceipts = function(address) {
     if(S(address).isEmpty()) {
-        return TypeError("Unable to retrieve the receipts for a blank address");
+        return Promise.reject(TypeError("Unable to retrieve the receipts for a blank address"));
     }
 
-    var receiptsMap = new Map();
+    const receiptsMap = new Map();
 
-    receiptRegistryInstance.ReceiptStored({}, {fromBlock: 0, toBlock: 'latest'}).get(function(error, logs){
-        console.log("IN");
-        if(error) {
-            return Promise.reject(Error(error));
+    return init()
+    .then( () => {
+        return getEvents(receiptRegistryInstance);
+    })
+    .then((results) => {
+        for(let i = 0; i < results.length; i++) {
+            var receipt = Receipt.marshalReceipt(results[i]);
+            if(receipt != undefined) {
+                // Composite key
+                var id = receipt.receiptId + receipt.storeId;
+                receiptsMap.set(id, receipt);
+            }
         }
-
-        console.log("THE LOGS");
-        console.log(logs);
-
-        for(let i = 0; i < logs.size; i++) {
-            var receipt = Receipt.marshalReceipt(logs);
-            // Composite key
-            var id = receipt.receiptId + receipt.storeId;
-            receiptsMap.set(id, receipt);
-        }
-        callback(receiptsMap.values());
-    });
+        return Promise.resolve(receiptsMap);
+    })
+    .catch( (err) => {
+        Promise.resolve(new Map());
+    })
 }
 
 var retrieveReceipt = function(address, receiptId, storageId) {
