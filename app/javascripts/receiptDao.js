@@ -9,25 +9,16 @@ var ReceiptRegistry;
 var receiptRegistryInstance;
 var web3;
 
-// Private
-function init() {
-    if (web3 === undefined) {
-        // set the provider you want from Web3.providers
-        web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+// Constructor
+function ReceiptDao(contractInstance) {
+    if(contractInstance == undefined) {
+        return TypeError("Unable to retrieve the receipts for a blank contract instance");
     }
 
-    if(receiptRegistryInstance === undefined || ReceiptRegistry === undefined) {
-        ReceiptRegistry = contract(receiptRegistryAbi);
-        ReceiptRegistry.setProvider(web3.currentProvider);
-
-        return ReceiptRegistry.deployed().then((instance) => {
-            receiptRegistryInstance = instance;
-        });
-    }
-
-    return Promise.resolve();
+    receiptRegistryInstance = contractInstance;
 }
 
+// Private
 function getEvents(instance, paramsObj, argsObj) {
     return new Promise(function(resolve, reject) {
         instance.ReceiptStored({}, {fromBlock: 0, toBlock: 'latest'}).get( (err, result) => {
@@ -39,17 +30,15 @@ function getEvents(instance, paramsObj, argsObj) {
     });
 }
 
-var retrieveAllReceipts = function(address) {
+// Public instance methods
+ReceiptDao.prototype.retrieveAllReceipts = function(address) {
     if(S(address).isEmpty()) {
         return Promise.reject(TypeError("Unable to retrieve the receipts for a blank address"));
     }
 
     const receiptsMap = new Map();
 
-    return init()
-    .then( () => {
-        return getEvents(receiptRegistryInstance);
-    })
+    return getEvents(receiptRegistryInstance)
     .then((results) => {
         for(let i = 0; i < results.length; i++) {
             var receipt = Receipt.marshalReceipt(results[i]);
@@ -66,17 +55,10 @@ var retrieveAllReceipts = function(address) {
     })
 }
 
-var retrieveReceipt = function(address, receiptId, storageId) {
-    console.log("Before init");
-    init();
-    console.log("End initialisation");
-
+ReceiptDao.prototype.retrieveReceipt = function(address, receiptId, storageId) {
     if(S(address).isEmpty()) {
         return Promise.reject(TypeError("Unable to retrieve the receipts for a blank address"));
     }
 }
 
-module.exports = {
-    retrieveAllReceipts: retrieveAllReceipts,
-    retrieveReceipt: retrieveReceipt
-}
+module.exports = ReceiptDao;
