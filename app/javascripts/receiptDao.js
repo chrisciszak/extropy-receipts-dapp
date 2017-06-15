@@ -19,9 +19,17 @@ function ReceiptDao(contractInstance) {
 }
 
 // Private
-function getEvents(instance, paramsObj, argsObj) {
+function getEvents(instance, address) {
+    if(instance == undefined) {
+        return Promise.reject(TypeError("A contract instance must be provided"));
+    }
+
+    if(address == undefined) {
+        return Promise.reject(TypeError("An address must be provided"));
+    }
+
     return new Promise(function(resolve, reject) {
-        instance.ReceiptStored({}, {fromBlock: 0, toBlock: 'latest'}).get( (err, result) => {
+        instance.ReceiptStored({receiptOwner : address}, {fromBlock: 0, toBlock: 'latest'}).get( (err, result) => {
             if(err) {
                 reject(err);
             }
@@ -38,11 +46,13 @@ ReceiptDao.prototype.retrieveAllReceipts = function(address) {
 
     const receiptsMap = new Map();
 
-    return getEvents(receiptRegistryInstance)
+    return getEvents(receiptRegistryInstance, address)
     .then((results) => {
+        console.log(results.length);
         for(let i = 0; i < results.length; i++) {
             var receipt = Receipt.marshalReceipt(results[i]);
             if(receipt != undefined) {
+                console.log(receipt);
                 // Composite key
                 var id = receipt.receiptId + receipt.storeId;
                 receiptsMap.set(id, receipt);
