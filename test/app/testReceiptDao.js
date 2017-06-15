@@ -1,4 +1,4 @@
-const receiptDao = require('../../app/javascripts/receiptDao.js');
+const ReceiptDao = require('../../app/javascripts/receiptDao.js');
 
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
@@ -18,6 +18,7 @@ var accounts;
 var deployingAccount;
 var user1;
 var user2;
+var receiptDao;
 
 const initialReceiptId = 'CD87EFA868F333C135F67798D7E0E2D99863996BCFCCCA37DCE4A0BCA580DD52';
 const receiptId2 = '1D087C4E4EF875470CD8F2E186AC05C7CC65F73CFC4393CEE241871950C0AC1A';
@@ -28,43 +29,56 @@ const imageHash2 = 'QmdiA1atSBgU178s5rsWont8cYns3fmwHxELTpiP9uFfLW';
 const initialMetadataHash = 'QmT9qk3CRYbFDWpDFYeAv8T8H1gnongwKhh5J68NLkLir6';
 const metadataHash2 = 'QmT9qk3CRYbFDWpDFYeAv8T8H1gnongwKhh5J68NLkLir6';
 
-before( () => {
-    if (web3 === undefined) {
-        // set the provider you want from Web3.providers
-        web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-    }
+function getAccounts(web3Instance) {
+    return new Promise(function(resolve, reject) {
 
-    web3.eth.getAccounts(function(err, accs) {
-      if (err != null) {
-        return;
-      }
-
-      if (accs.length == 0) {
-        return;
-      }
-
-      accounts = accs;
-      deployingAccount = accounts[0];
-      user1 = accounts[1];
-      user2 = accounts[2];
+        web3Instance.eth.getAccounts( (err, result) => {
+            if(err) {
+                reject(err);
+            }
+            resolve(result);
+        });
     });
+}
 
-    if(receiptRegistryInstance === undefined || ReceiptRegistry === undefined) {
-        ReceiptRegistry = contract(receiptRegistryAbi);
-        ReceiptRegistry.setProvider(web3.currentProvider);
+describe('Receipt DAO tests:', function() {
+    // Increase the timeout for this before hook to 20 seconds
+    this.timeout(20000);
 
-        return ReceiptRegistry.deployed()
+    before( () => {
+        if (web3 === undefined) {
+            // set the provider you want from Web3.providers
+            web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        }
+
+        return getAccounts(web3)
+        .then( (accs)  => {
+          accounts = accs;
+          deployingAccount = accounts[0];
+          user1 = accounts[1];
+          user2 = accounts[2];
+          return accounts;
+        })
+        .then( () => {
+            if(receiptRegistryInstance === undefined || ReceiptRegistry === undefined) {
+                ReceiptRegistry = contract(receiptRegistryAbi);
+                ReceiptRegistry.setProvider(web3.currentProvider);
+
+                console.log(ReceiptRegistry);
+
+                return ReceiptRegistry.new( {from: deployingAccount, gas: 1000000});
+            }
+            return Promise.resolve();
+        })
         .then((instance) => {
+            receiptDao = new ReceiptDao(instance);
             receiptRegistryInstance = instance;
             return instance.storeReceipt(initialReceiptId, initialStoreId, initialImageHash, initialMetadataHash, {from: deployingAccount});
         })
         .then( (result) => {
             return Promise.resolve();
         });
-    }
-})
-
-describe('Receipt DAO tests:', () => {
+    })
 
     describe('Retrieve All Receipts tests:', () => {
         it('should be true that an error is thrown if no address is supplied', () => {
