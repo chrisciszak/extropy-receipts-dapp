@@ -48,11 +48,9 @@ ReceiptDao.prototype.retrieveAllReceipts = function(address) {
 
     return getEvents(receiptRegistryInstance, address)
     .then((results) => {
-        console.log(results.length);
         for(let i = 0; i < results.length; i++) {
             var receipt = Receipt.marshalReceipt(results[i]);
             if(receipt != undefined) {
-                console.log(receipt);
                 // Composite key
                 var id = receipt.receiptId + receipt.storeId;
                 receiptsMap.set(id, receipt);
@@ -67,8 +65,34 @@ ReceiptDao.prototype.retrieveAllReceipts = function(address) {
 
 ReceiptDao.prototype.retrieveReceipt = function(address, receiptId, storageId) {
     if(S(address).isEmpty()) {
-        return Promise.reject(TypeError("Unable to retrieve the receipts for a blank address"));
+        return Promise.reject(TypeError("Unable to retrieve a receipt for a blank address"));
     }
+
+    if(S(receiptId).isEmpty()) {
+        return Promise.reject(TypeError("Unable to retrieve a receipt for a blank receipt ID"));
+    }
+
+    if(storageId == undefined) {
+        return Promise.reject(TypeError("Unable to retrieve a receipt for a blank storage ID"));
+    }
+
+    const receiptsMap = new Map();
+
+    return getEvents(receiptRegistryInstance, address)
+    .then((results) => {
+        for(let i = 0; i < results.length; i++) {
+            var receipt = Receipt.marshalReceipt(results[i]);
+            if(receipt != undefined && (receipt.receiptId != undefined && receipt.receiptId == receiptId) && (receipt.storeId != undefined && receipt.storeId == storageId)) {
+                // Composite key
+                var id = receipt.receiptId + receipt.storeId;
+                receiptsMap.set(id, receipt);
+            }
+        }
+        return Promise.resolve(receiptsMap);
+    })
+    .catch( (err) => {
+        Promise.resolve(new Map());
+    })
 }
 
 module.exports = ReceiptDao;
