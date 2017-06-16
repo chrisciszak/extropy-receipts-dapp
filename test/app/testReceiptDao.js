@@ -26,8 +26,10 @@ const initialStoreId = 1;
 const storeId2 = 2;
 const initialImageHash = 'QmT4AeWE9Q9EaoyLJiqaZuYQ8mJeq4ZBncjjFH9dQ9uDVA';
 const imageHash2 = 'QmdiA1atSBgU178s5rsWont8cYns3fmwHxELTpiP9uFfLW';
+const imageHash3 = 'Qmd1B1atSBgU178s5rsWont8cYns3fmwHxELTpiP9udfGe';
 const initialMetadataHash = 'QmT9qk3CRYbFDWpDFYeAv8T8H1gnongwKhh5J68NLkLir6';
 const metadataHash2 = 'QmT9qk3CRYbFDWpDFYeAv8T8H1gnongwKhh5J68NLkLir6';
+const metadataHash3 = 'Qmza1k3CRYbFDWpDFYeAv8T8H1gnongwKhh5J68NLkvf9l';
 
 function getAccounts(web3Instance) {
     return new Promise(function(resolve, reject) {
@@ -63,9 +65,6 @@ describe('Receipt DAO tests:', function() {
             if(receiptRegistryInstance === undefined || ReceiptRegistry === undefined) {
                 ReceiptRegistry = contract(receiptRegistryAbi);
                 ReceiptRegistry.setProvider(web3.currentProvider);
-
-                console.log(ReceiptRegistry);
-
                 return ReceiptRegistry.new( {from: deployingAccount, gas: 1000000});
             }
             return Promise.resolve();
@@ -101,14 +100,14 @@ describe('Receipt DAO tests:', function() {
         it('should be true that a user does not have any receipt stored then none are returned', () => {
             return receiptDao.retrieveAllReceipts(user2)
             .then((receipts) => {
-                console.log(receipts);
                 assert.equal(receipts.size, 0, 'Expected that only the initial receipt would be retrieved');
                 var receipt = Array.from(receipts.values())[0];
+                assert.equal(receipt, undefined);
             })
             .should.be.fulfilled;
         });
 
-        it('should be true that only the single receipt is returned for a new address', () => {
+        it('should be true that, once stored, only the single receipt is returned for a new address', () => {
             return receiptRegistryInstance.storeReceipt(initialReceiptId, initialStoreId, initialImageHash, initialMetadataHash, {from: user1})
             .then( (results) => {
                 return receiptDao.retrieveAllReceipts(user1);
@@ -125,7 +124,23 @@ describe('Receipt DAO tests:', function() {
         });
 
 
-        it('should be true that only the same receipt details can exist on two different stores and be retrieved', () => {
+        it('should be true that, once stored, adding the same data will not result in multiple receipts', () => {
+            return receiptRegistryInstance.storeReceipt(initialReceiptId, initialStoreId, initialImageHash, initialMetadataHash, {from: user1})
+            .then( (results) => {
+                return receiptDao.retrieveAllReceipts(user1);
+            })
+            .then((receipts) => {
+                assert.equal(receipts.size, 1, 'Expected that only the initial receipt would be retrieved');
+                var receipt = Array.from(receipts.values())[0];
+                assert.equal(receipt.receiptId, initialReceiptId, 'Expected the retrieved id to match');
+                assert.equal(receipt.storeId, initialStoreId, 'Expected the retrieved store id to match');
+                assert.equal(receipt.imageHash, initialImageHash, 'Expected the retrieved image hash to match');
+                assert.equal(receipt.metadataHash, initialMetadataHash, 'Expected the retrieved metadata hash to match');
+            })
+            .should.be.fulfilled;
+        });
+
+        it('should be true that the same receipt details can exist in two different stores and be retrieved', () => {
             return receiptRegistryInstance.storeReceipt(initialReceiptId, storeId2, initialImageHash, initialMetadataHash, {from: user1})
             .then( (results) => {
                 return receiptDao.retrieveAllReceipts(user1);
@@ -175,10 +190,103 @@ describe('Receipt DAO tests:', function() {
             })
             .should.be.fulfilled;
         });
+
+        it('should be true that updating the image (details) for a receipts just overwrites the existing one', () => {
+            return receiptRegistryInstance.storeReceipt(initialReceiptId, initialStoreId, imageHash3, initialMetadataHash, {from: user1})
+            .then( (results) => {
+                return receiptDao.retrieveAllReceipts(user1);
+            })
+            .then((receipts) => {
+                assert.equal(receipts.size, 3, 'Expected that only the initial receipt would be retrieved');
+                var receipt = Array.from(receipts.values())[0];
+                assert.equal(receipt.receiptId, initialReceiptId, 'Expected the retrieved id to match');
+                assert.equal(receipt.storeId, initialStoreId, 'Expected the retrieved store id to match');
+                assert.equal(receipt.imageHash, imageHash3, 'Expected the retrieved image hash to match');
+                assert.equal(receipt.metadataHash, initialMetadataHash, 'Expected the retrieved metadata hash to match');
+
+                receipt = Array.from(receipts.values())[1];
+                assert.equal(receipt.receiptId, initialReceiptId, 'Expected the retrieved id to match');
+                assert.equal(receipt.storeId, storeId2, 'Expected the retrieved store id to match');
+                assert.equal(receipt.imageHash, initialImageHash, 'Expected the retrieved image hash to match');
+                assert.equal(receipt.metadataHash, initialMetadataHash, 'Expected the retrieved metadata hash to match');
+
+                receipt = Array.from(receipts.values())[2];
+                assert.equal(receipt.receiptId, receiptId2, 'Expected the retrieved id to match');
+                assert.equal(receipt.storeId, storeId2, 'Expected the retrieved store id to match');
+                assert.equal(receipt.imageHash, imageHash2, 'Expected the retrieved image hash to match');
+                assert.equal(receipt.metadataHash, metadataHash2, 'Expected the retrieved metadata hash to match');
+            })
+            .should.be.fulfilled;
+        });
+
+        it('should be true that updating the metadata (details) for a receipts just overwrites the existing one', () => {
+            return receiptRegistryInstance.storeReceipt(initialReceiptId, initialStoreId, imageHash3, metadataHash3, {from: user1})
+            .then( (results) => {
+                return receiptDao.retrieveAllReceipts(user1);
+            })
+            .then((receipts) => {
+                assert.equal(receipts.size, 3, 'Expected that only the initial receipt would be retrieved');
+                var receipt = Array.from(receipts.values())[0];
+                assert.equal(receipt.receiptId, initialReceiptId, 'Expected the retrieved id to match');
+                assert.equal(receipt.storeId, initialStoreId, 'Expected the retrieved store id to match');
+                assert.equal(receipt.imageHash, imageHash3, 'Expected the retrieved image hash to match');
+                assert.equal(receipt.metadataHash, metadataHash3, 'Expected the retrieved metadata hash to match');
+
+                receipt = Array.from(receipts.values())[1];
+                assert.equal(receipt.receiptId, initialReceiptId, 'Expected the retrieved id to match');
+                assert.equal(receipt.storeId, storeId2, 'Expected the retrieved store id to match');
+                assert.equal(receipt.imageHash, initialImageHash, 'Expected the retrieved image hash to match');
+                assert.equal(receipt.metadataHash, initialMetadataHash, 'Expected the retrieved metadata hash to match');
+
+                receipt = Array.from(receipts.values())[2];
+                assert.equal(receipt.receiptId, receiptId2, 'Expected the retrieved id to match');
+                assert.equal(receipt.storeId, storeId2, 'Expected the retrieved store id to match');
+                assert.equal(receipt.imageHash, imageHash2, 'Expected the retrieved image hash to match');
+                assert.equal(receipt.metadataHash, metadataHash2, 'Expected the retrieved metadata hash to match');
+            })
+            .should.be.fulfilled;
+        });
+
+        // TODO should not retrieve 'deleted' receipts
     })
 
-    /*describe('Retrieve single Receipt test:', () => {
+    describe('Retrieve single Receipt test:', () => {
+        // TODO return only one receipt from the function
 
-    })*/
+        it('should be possible to retrieve the initial event / receipt by ID', () => {
+            return receiptDao.retrieveReceipt(deployingAccount, initialReceiptId, initialStoreId)
+            .then((receipts) => {
+                assert.equal(receipts.size, 1, 'Expected that only the initial receipt would be retrieved');
+                var receipt = Array.from(receipts.values())[0];
+                assert.equal(receipt.receiptId, initialReceiptId, 'Expected the retrieved id to match');
+                assert.equal(receipt.storeId, initialStoreId, 'Expected the retrieved store id to match');
+                assert.equal(receipt.imageHash, initialImageHash, 'Expected the retrieved image hash to match');
+                assert.equal(receipt.metadataHash, initialMetadataHash, 'Expected the retrieved metadata hash to match');
+            })
+            .should.be.fulfilled;
+        });
+
+        it('should not return a receipt when given a receipt ID that has not been stored by this user', () => {
+            return receiptDao.retrieveReceipt(deployingAccount, receiptId2, initialStoreId)
+            .then((receipts) => {
+                assert.equal(receipts.size, 0, 'Expected that only the initial receipt would be retrieved');
+                var receipt = Array.from(receipts.values())[0];
+                assert.equal(receipt, undefined);
+            })
+            .should.be.fulfilled;
+        });
+
+        it('should not return a receipt when given a receipt ID stored by this user, but an incorrect storage id', () => {
+            return receiptDao.retrieveReceipt(deployingAccount, initialReceiptId, storeId2)
+            .then((receipts) => {
+                assert.equal(receipts.size, 0, 'Expected that only the initial receipt would be retrieved');
+                var receipt = Array.from(receipts.values())[0];
+                assert.equal(receipt, undefined);
+            })
+            .should.be.fulfilled;
+        });
+
+        // Even though receipt details have been stored multiple times it should only return one receipt
+    })
 
 });
