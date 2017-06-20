@@ -10,8 +10,14 @@
   <h1>Store receipt data</h1>
   <!--<br><br><button id="store" onclick="App.storeReceipt('B11099930C69EFA2DE5E74A75404F5AC76BDEA19EAF271B68705DE7D015EA686', '0' , 'QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG', 'QmSoLju6m7xTh3DuokvT3886QRYqxAzb1kShaanJgW36yx')">save</button>-->
   <br><br><button id="store" onclick="App.storeReceipt()">save</button>
+  <form action="http://localhost:3000/receipt" method="post" enctype="multipart/form-data">
+    <input type="file" name="fileupload" value="fileupload" id="fileupload"> <label for="fileupload"> Select a file to upload</label>
+    First name: <input type="text" name="fname"><br>
+    Last name: <input type="text" name="lname"><br>
+    <input type="submit" value="Submit">
+  </form>
   <br><br>
-  <h1>Store receipt data</h1>
+  <h1>Retrieve receipt data</h1>
   <br><br><button id="retrieve" onclick="App.retrieveStoredReceipts()">retrieve</button>
   <br><br>
   <span id="status"></span>
