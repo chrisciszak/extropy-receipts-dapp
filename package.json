@@ -49,6 +49,7 @@
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
     "express": "^4.15.3",
+    "express-formidable": "^1.0.0",
     "mocha": "^3.2.0"
   }
 }
