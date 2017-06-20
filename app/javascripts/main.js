@@ -43,7 +43,7 @@ var init = function(req, res, next) {
     next();
 }
 
-var convertToJson = function(data) {
+var getReceiptJson = function(data) {
     if(data == undefined || ! (data instanceof Map)) {
         return [];
     }
@@ -65,6 +65,15 @@ var convertToJson = function(data) {
     return json;
 }
 
+var getMetadataJson = function(amount, purchaseType, purchaseDate) {
+
+    return {
+        "amount" : amount,
+        "type" : purchaseType,
+        "date" : purchaseDate
+    }
+}
+
 // Add the init 'middleware'
 app.use(init);
 app.use(formidable());
@@ -75,7 +84,7 @@ app.get('/receipts/:address', function (req, res) {
   return receiptDao.retrieveAllReceipts(address)
   .then( (receipts) => {
     console.log(receipts.values());
-    res.json(convertToJson(receipts));
+    res.json(getReceiptJson(receipts));
   })
   .catch( (err) => {
     res.sendStatus(500); // equivalent to res.status(500).send('Internal Server Error')
@@ -83,20 +92,22 @@ app.get('/receipts/:address', function (req, res) {
 })
 
 app.post('/receipt', function (req, res) {
-  console.log("THE FIELDS");
-  console.log(req.fields);
-  console.log("THE FILES");
-  console.log(req.files);
-
+  var json = {};
   return DocumentPersistence.persistDocument(req.files.fileupload.path)
   .then( (result) => {
-    console.log(result);
+    json.image = result;
+    var fields = req.fields;
+    var metadataString = JSON.stringify(getMetadataJson(fields.pamount, fields.ptype, fields.pdate));
+    var buffer = Buffer.from(metadataString);
+    return DocumentPersistence.persistDocument(buffer);
+  })
+  .then( (result) => {
+    json.metadata = result;
+    res.json(json);
   })
   .catch( (err) => {
     console.log(err);
     res.end();
   })
-
-  res.end();
 })
 app.listen(3000)

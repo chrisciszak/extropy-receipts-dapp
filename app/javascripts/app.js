@@ -42,11 +42,11 @@ window.App = {
     console.log("Storing");
     console.log("The address: ");
     console.log(account);
-    var self = this;
 
-    let receiptRegistry;
+    var data = JSON.parse(document.getElementById("receiptData"));
+    var id = web3.sha3(data, {encoding: 'hex'});
     ReceiptRegistry.deployed().then(function(instance) {
-      return instance.storeReceipt('B11099930C69EFA2DE5E74A75404F5AC76BDEA19EAF271B68705DE7D015EA686', '0' , 'QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG', 'QmSoLju6m7xTh3DuokvT3886QRYqxAzb1kShaanJgW36yx', {from: account});
+      return instance.storeReceipt(id, '0' , data.image, data.metadata, {from: account});
     }).then(function() {
       console.log("Receipt data stored!");
     }).catch(function(e) {
@@ -57,21 +57,6 @@ window.App = {
 
   retrieveStoredReceipts: function() {
     var self = this;
-    ReceiptRegistry.deployed().then(function(instance) {
-      instance.ReceiptStored({}, {fromBlock: 0, toBlock: 'latest'}).get((error, eventResult) => {
-          console.log(eventResult);
-          /*if(eventResult != undefined) {
-              for(let i = 0; i < eventResult.length; i++) {
-                  console.log(eventResult[i]);
-              }
-          }*/
-      });
-    }).then(function() {
-      console.log("Receipt data retrieved!");
-    }).catch(function(e) {
-      console.log(e);
-      console.log("Error sending coin; see log.");
-    });
   }
 };
 
