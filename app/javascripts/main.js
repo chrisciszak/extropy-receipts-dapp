@@ -1,7 +1,7 @@
 const http = require("http");
-const express = require('express')
+const express = require('express');
 const formidable = require('express-formidable');
-const app = express()
+const app = express();
 
 const ReceiptDao = require('./receiptDao');
 const receiptRegistryAbi = require('../../build/contracts/ReceiptRegistry.json');
@@ -41,17 +41,17 @@ var init = function(req, res, next) {
 
     // call next step
     next();
-}
+};
 
 var getReceiptJson = function(data) {
     if(data == undefined || ! (data instanceof Map)) {
         return [];
     }
 
-    var json = [];
-    var receipts = Array.from(data.values());
+    let json = [];
+    let receipts = Array.from(data.values());
     for(let i = 0; i < receipts.length; i++) {
-        var receipt = receipts[i];
+        const receipt = receipts[i];
         json.push(
             {
                 "id": receipt.receiptId,
@@ -63,7 +63,7 @@ var getReceiptJson = function(data) {
     }
 
     return json;
-}
+};
 
 var getMetadataJson = function(amount, purchaseType, purchaseDate) {
 
@@ -72,7 +72,7 @@ var getMetadataJson = function(amount, purchaseType, purchaseDate) {
         "type" : purchaseType,
         "date" : purchaseDate
     }
-}
+};
 
 // Add the init 'middleware'
 app.use(init);
@@ -89,16 +89,16 @@ app.get('/receipts/:address', function (req, res) {
   .catch( (err) => {
     res.sendStatus(500); // equivalent to res.status(500).send('Internal Server Error')
   })
-})
+});
 
 app.post('/receipt', function (req, res) {
-  var json = {};
+  let json = {};
   return DocumentPersistence.persistDocument(req.files.fileupload.path)
   .then( (result) => {
     json.image = result;
-    var fields = req.fields;
-    var metadataString = JSON.stringify(getMetadataJson(fields.pamount, fields.ptype, fields.pdate));
-    var buffer = Buffer.from(metadataString);
+    const fields = req.fields;
+    const metadataString = JSON.stringify(getMetadataJson(fields.pamount, fields.ptype, fields.pdate));
+    const buffer = Buffer.from(metadataString);
     return DocumentPersistence.persistDocument(buffer);
   })
   .then( (result) => {
@@ -109,5 +109,6 @@ app.post('/receipt', function (req, res) {
     console.log(err);
     res.end();
   })
-})
-app.listen(3000)
+});
+
+app.listen(3000);
