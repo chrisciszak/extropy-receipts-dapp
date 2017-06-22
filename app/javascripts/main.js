@@ -84,7 +84,7 @@ app.get('/receipts/:address', function (req, res) {
   return receiptDao.retrieveAllReceipts(address)
   .then( (receipts) => {
     console.log(receipts.values());
-    res.json(getReceiptJson(receipts));
+    res.jsonp(getReceiptJson(receipts));
   })
   .catch( (err) => {
     res.sendStatus(500); // equivalent to res.status(500).send('Internal Server Error')
@@ -103,7 +103,7 @@ app.post('/receipt', function (req, res) {
   })
   .then( (result) => {
     json.metadata = result;
-    res.json(json);
+    res.jsonp(json);
   })
   .catch( (err) => {
     console.log(err);

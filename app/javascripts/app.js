@@ -5,6 +5,11 @@ import "../stylesheets/app.css";
 import { default as Web3} from 'web3';
 import { default as contract } from 'truffle-contract'
 
+import $ from "jquery";
+
+// import Vue from 'vue'
+// import App from '../vue/App.vue'
+
 // Import our contract artifacts and turn them into usable abstractions.
 import receiptRegistry_artifacts from '../../build/contracts/ReceiptRegistry.json'
 
@@ -16,6 +21,11 @@ const ReceiptRegistry = contract(receiptRegistry_artifacts);
 // For application bootstrapping, check out window.addEventListener below.
 var accounts;
 var account;
+
+/*var app = new Vue({
+  el: '#app',
+  render: h => h(App)
+});*/
 
 window.App = {
   start: function() {
@@ -39,12 +49,13 @@ window.App = {
   },
 
   storeReceipt: function(receiptId, storageId, imageHash, metadataHash) {
-    console.log("Storing");
-    console.log("The address: ");
-    console.log(account);
+    const input = $("input#receiptData");
+    console.log(input.val());
 
-    const data = JSON.parse(document.getElementById("receiptData"));
-    const id = web3.sha3(data, {encoding: 'hex'});
+    const data = JSON.parse(input.val());
+    const id = web3.sha3(JSON.stringify(data));
+    console.log("THE ID");
+    console.log(id);
     ReceiptRegistry.deployed().then(function(instance) {
       return instance.storeReceipt(id, '0' , data.image, data.metadata, {from: account});
     }).then(function() {
@@ -56,7 +67,24 @@ window.App = {
   },
 
   retrieveStoredReceipts: function() {
-    var self = this;
+    console.log("BEFORE");
+    $.ajax({
+        dataType: "jsonp",
+        url: 'http://localhost:3000/receipts/'+account+'?jsoncallback=callback',
+        data: {},
+        success: function( data ) {
+            console.log("RECEIVED A RESPONSE");
+            console.log(data);
+            if(data !== undefined) {
+              let outputDest = $("div#receiptDataOutput");
+              console.log(outputDest);
+              outputDest.text(JSON.stringify(data));
+            }
+        },
+        error: function(xhr, status, error) {
+            console.log(status + '; ' + error);
+        }
+    });
   }
 };
 
