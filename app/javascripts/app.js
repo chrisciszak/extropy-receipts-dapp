@@ -9,7 +9,7 @@ import { default as contract } from 'truffle-contract'
 import receiptRegistry_artifacts from '../../build/contracts/ReceiptRegistry.json'
 
 // ReceiptRegistry is our usable abstraction, which we'll use through the code below.
-var ReceiptRegistry = contract(receiptRegistry_artifacts);
+const ReceiptRegistry = contract(receiptRegistry_artifacts);
 
 // The following code is simple to show off interacting with your contracts.
 // As your needs grow you will likely need to change its form and structure.
@@ -43,8 +43,8 @@ window.App = {
     console.log("The address: ");
     console.log(account);
 
-    var data = JSON.parse(document.getElementById("receiptData"));
-    var id = web3.sha3(data, {encoding: 'hex'});
+    const data = JSON.parse(document.getElementById("receiptData"));
+    const id = web3.sha3(data, {encoding: 'hex'});
     ReceiptRegistry.deployed().then(function(instance) {
       return instance.storeReceipt(id, '0' , data.image, data.metadata, {from: account});
     }).then(function() {
