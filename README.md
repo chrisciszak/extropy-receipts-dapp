@@ -1,18 +1,29 @@
-# truffle-init-webpack
-Example webpack project with Truffle. Includes contracts, migrations, tests, user interface and webpack build pipeline.
+# extropy-receits-dapp
+Ethereum Decentralised Application (DApp) for storing of receipts in a decentralised, secure and trustless manner.
 
-## Usage
+## Requirements
 
-To initialize a project with this exapmple, run `truffle init webpack` inside an empty directory.
+* Truffle:
+* Node / NPM:
+* IPFS
 
-## Building and the frontend
+## Building and the front-end
 
 1. First run `truffle compile`, then run `truffle migrate` to deploy the contracts onto your network of choice (default "development").
-1. Then run `npm run dev` to build the app and serve it on http://localhost:8080
+2. Then run `npm run dev` to build the app and serve it on http://localhost:8080
 
-## Possible upgrades
+## Running the back-end
 
-* Use the webpack hotloader to sense when contracts or javascript have been recompiled and rebuild the application. Contributions welcome!
+**Note: due to the way that Truffle works, if you are deploying to an environment for the first time (or to testrpc) you must build and run the font-end before you start the Node server**
+
+1. Starting the Node Application
+```
+node app/javascripts/main.js
+```
+2. Starting IPFS
+```
+ipfs daemon
+```
 
 ## Common Errors
 
