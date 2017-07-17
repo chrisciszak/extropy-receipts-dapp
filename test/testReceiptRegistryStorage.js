@@ -1,7 +1,7 @@
 var ReceiptRegistry = artifacts.require("./ReceiptRegistry.sol");
 const EthereumEventAssertions = require('../../ethereum-standard-contracts/test/javascript/ethereumEventAssertions.js');
 
-contract('ReceiptRegistry Storage', function(accounts) {
+contract('ReceiptRegistry', function(accounts) {
     var receiptRegistryInstance;
     var deployingAccount = accounts[0];
 
