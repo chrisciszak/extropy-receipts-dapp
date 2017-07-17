@@ -2,12 +2,7 @@ const Receipt = require('./receipt.js');
 const S = require('string');
 const contract = require('truffle-contract');
 
-const Web3 = require('web3');
-
-const receiptRegistryAbi = require('../../build/contracts/ReceiptRegistry.json');
-var ReceiptRegistry;
 var receiptRegistryInstance;
-var web3;
 
 // Constructor
 function ReceiptDao(contractInstance) {
@@ -59,6 +54,7 @@ ReceiptDao.prototype.retrieveAllReceipts = function(address) {
         return Promise.resolve(receiptsMap);
     })
     .catch( (err) => {
+        console.log(err);
         Promise.resolve(new Map());
     })
 }
