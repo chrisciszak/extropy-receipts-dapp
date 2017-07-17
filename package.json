@@ -45,6 +45,7 @@
     "webpack-dev-server": "^2.3.0"
   },
   "dependencies": {
+    "async": "^2.5.0",
     "bluebird": "^3.5.0",
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
