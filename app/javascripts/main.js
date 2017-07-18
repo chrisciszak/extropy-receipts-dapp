@@ -7,6 +7,7 @@ const ReceiptDao = require('./receiptDao');
 const receiptRegistryAbi = require('../../build/contracts/ReceiptRegistry.json');
 const contract = require('truffle-contract');
 const Web3 = require('web3');
+const async = require('async');
 
 const DocumentPersistence = require('../../../extropy-document-persistence');
 
@@ -35,12 +36,30 @@ var init = function(req, res, next) {
             next();
         })
         .catch( (err) => {
-            res.sendStatus(500); // equivalent to res.status(500).send('Internal Server Error')
+            console.log(err);
+            res.status(500).send('Internal Server Error: ' + err);
         })
     }
 
     // call next step
     next();
+};
+
+var retrieveReceiptData = function (imageHash, metaDataHash) {
+    const data = {};
+    return DocumentPersistence.retrieveDocument(imageHash)
+        .then((imageData) => {
+            data.image = imageData;
+            console.log("IMAGE");
+            console.log(imageData);
+            return DocumentPersistence.retrieveDocument(metaDataHash);
+        })
+        .then( (metadataData) => {
+            data.metadata = metadataData;
+            console.log("METADATA");
+            console.log(metadataData);
+            return data;
+        });
 };
 
 var getReceiptJson = function(data) {
@@ -50,17 +69,36 @@ var getReceiptJson = function(data) {
 
     let json = [];
     let receipts = Array.from(data.values());
-    for(let i = 0; i < receipts.length; i++) {
-        const receipt = receipts[i];
-        json.push(
-            {
-                "id": receipt.receiptId,
-                "blockNumber": receipt.blockNum,
-                "image": "https://ipfs.infura.io/ipfs/"+receipt.imageHash,
-                "metadata" : "https://ipfs.infura.io/ipfs/"+receipt.metadataHash
-            }
-        )
-    }
+
+    console.log(receipts);
+    async.each(
+        // Collection
+        receipts,
+        // Async function
+        function (receipt, callback) {
+            retrieveReceiptData(receipt.imageHash, receipt.metadataHash)
+                .then( (data) => {
+                    json.push(
+                        {
+                            "id": receipt.receiptId,
+                            "blockNumber": receipt.blockNum,
+                            "image": data.image,
+                            "metadata" : data.metadata
+                        }
+                    );
+                });
+            console.log("LOOP");
+            console.log(receipt);
+            callback();
+        },
+        // callback
+        function (err) {
+            console.log("DONE");
+        }
+    );
+
+    console.log(" AFTER EACH ");
+    console.log(json);
 
     return json;
 };
@@ -87,8 +125,29 @@ app.get('/receipts/:address', function (req, res) {
     res.jsonp(getReceiptJson(receipts));
   })
   .catch( (err) => {
-    res.sendStatus(500); // equivalent to res.status(500).send('Internal Server Error')
+      console.log(err);
+      res.status(500).send('Internal Server Error' + err);
   })
+});
+
+app.get('/receipt/:id/address/:address', function (req, res) {
+    const id = req.params.id;
+    const address = req.params.address;
+
+    return receiptDao.retrieveReceipt(address, id, 0)
+    .then( (receipt) => {
+        console.log(receipt);
+        res.jsonp(getReceiptJson(receipt));
+    })
+    .catch( (err) => {
+        console.log(err);
+        res.status(500).send('Internal Server Error' + err);
+    })
+
+});
+
+app.get('/receipt/:id/address/:address/image', function (req, res) {
+
 });
 
 app.post('/receipt', function (req, res) {
