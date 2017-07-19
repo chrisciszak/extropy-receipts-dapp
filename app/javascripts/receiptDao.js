@@ -4,7 +4,7 @@ const contract = require('truffle-contract');
 const async = require('async');
 
 // To avoid problems with requests for logs timing out, batch the requests by number of blocks.
-const MAX_BATCH_SIZE = 200;
+const MAX_BATCH_SIZE = 500;
 
 let receiptRegistryInstance;
 
@@ -44,9 +44,30 @@ function getCurrentBlockHeight() {
 }
 
 function getStartBlockNumber() {
-    return new Promise( (resolve, reject) => {
-        resolve(receiptRegistryInstance.block_number_deployed_in || 0);
-    });
+    if(receiptRegistryInstance.block_number_deployed_in !== undefined) {
+        return Promise.resolve(receiptRegistryInstance.block_number_deployed_in);
+    }
+
+    return getWeb3Instance()
+        .then( (web3) => {
+            return new Promise((resolve, reject) => {
+                web3.version.getNetwork((error, result) => {
+                    if(error) {
+                        reject(error);
+                    }
+
+                    if(result == undefined) {
+                        resolve(0)
+                    }
+                    // A bit of a hack until the changes are accepted to Truffle to optimise the code
+                    // Network 4 = Rinkeby
+                    else if(result == 4) {
+                        resolve(560000);
+                    }
+                    resolve(0);
+                });
+            });
+        });
 }
 
 function getEvents(instance, address) {
