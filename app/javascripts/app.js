@@ -70,7 +70,7 @@ window.App = {
     console.log("BEFORE");
     $.ajax({
         dataType: "jsonp",
-        url: 'http://localhost:3000/receipts/'+account+'?jsoncallback=callback',
+        url: 'http://localhost:3145/receipts/'+account+'?jsoncallback=callback',
         data: {},
         success: function( data ) {
             console.log("RECEIVED A RESPONSE");

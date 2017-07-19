@@ -129,7 +129,6 @@ app.get('/receipts/:address', function (req, res) {
 
     return receiptDao.retrieveAllReceipts(address)
         .then((receipts) => {
-            console.log(receipts.values());
             return getReceiptJson(receipts);
         })
         .then((data) => {
@@ -147,7 +146,6 @@ app.get('/receipt/:id/address/:address', function (req, res) {
 
     return receiptDao.retrieveReceipt(address, id, 0)
         .then((receipt) => {
-            console.log(receipt);
             return getReceiptJson(receipt);
         })
         .then((data) => {
@@ -194,4 +192,4 @@ app.post('/receipt', function (req, res) {
         })
 });
 
-app.listen(3000);
+app.listen(3145);
