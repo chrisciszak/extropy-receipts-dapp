@@ -45,7 +45,17 @@ var init = function(req, res, next) {
     next();
 };
 
-var retrieveReceiptData = function (imageHash, metaDataHash) {
+var retrieveReceiptMetaData = function (metaDataHash) {
+    return DocumentPersistence.retrieveDocument(metaDataHash)
+        .then( (metadataData) => {
+            if(metadataData !== undefined && metadataData instanceof Buffer) {
+                return JSON.parse(metadataData.toString());
+            }
+            return metadataData;
+        });
+};
+
+var retrieveReceiptImageData = function (imageHash) {
     const data = {};
     return DocumentPersistence.retrieveDocument(imageHash)
         .then((imageData) => {
@@ -76,14 +86,14 @@ var getReceiptJson = function(data) {
             receipts,
             // Async function
             function (receipt, callback) {
-                retrieveReceiptData(receipt.imageHash, receipt.metadataHash)
-                    .then( (data) => {
+                retrieveReceiptMetaData(receipt.metadataHash)
+                    .then( (metadata) => {
                         json.push(
                             {
                                 "id": receipt.receiptId,
                                 "blockNumber": receipt.blockNum,
-                                "image": data.image,
-                                "metadata" : data.metadata
+                                "image": receipt.imageHash,
+                                "metadata" : metadata
                             }
                         );
                         callback();
@@ -152,7 +162,8 @@ app.get('/receipt/:id/address/:address', function (req, res) {
 });
 
 app.get('/receipt/:id/address/:address/image', function (req, res) {
-
+    /*res.writeHead(200, {'Content-Type': 'image/gif' });
+    res.end(img, 'binary');*/
 });
 
 app.post('/receipt', function (req, res) {
