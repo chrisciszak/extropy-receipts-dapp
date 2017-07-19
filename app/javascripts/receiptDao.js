@@ -147,21 +147,22 @@ ReceiptDao.prototype.retrieveReceipt = function(address, receiptId, storageId) {
     }
 
     const receiptsMap = new Map();
+    // Composite key
+    const id = receiptId + storageId;
 
     return getEvents(receiptRegistryInstance, address)
     .then((results) => {
         for(let i = 0; i < results.length; i++) {
             var receipt = Receipt.marshalReceipt(results[i]);
             if(receipt != undefined && (receipt.receiptId != undefined && receipt.receiptId == receiptId) && (receipt.storeId != undefined && receipt.storeId == storageId)) {
-                // Composite key
-                var id = receipt.receiptId + receipt.storeId;
                 receiptsMap.set(id, receipt);
             }
         }
-        return Promise.resolve(receiptsMap);
+        return Promise.resolve(receiptsMap.get(id));
     })
     .catch( (err) => {
-        Promise.resolve(new Map());
+        console.log(err);
+        return Promise.resolve(new Map());
     })
 };
 

@@ -92,7 +92,6 @@ var getReceiptJson = function (data) {
                             {
                                 "id": receipt.receiptId,
                                 "blockNumber": receipt.blockNum,
-                                "image": receipt.imageHash,
                                 "metadata": metadata
                             }
                         );
@@ -162,8 +161,17 @@ app.get('/receipt/:id/address/:address', function (req, res) {
 });
 
 app.get('/receipt/:id/address/:address/image', function (req, res) {
-    /*res.writeHead(200, {'Content-Type': 'image/gif' });
-    res.end(img, 'binary');*/
+    const id = req.params.id;
+    const address = req.params.address;
+
+    return receiptDao.retrieveReceipt(address, id, 0)
+        .then( (receiptData) => {
+            return DocumentPersistence.retrieveDocument(receiptData.imageHash);
+        })
+        .then( ( imageData) => {
+            res.writeHead(200, {'Content-Type': 'image/gif' });
+            res.end(imageData, 'binary');
+        })
 });
 
 app.post('/receipt', function (req, res) {
