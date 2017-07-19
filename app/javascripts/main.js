@@ -64,43 +64,42 @@ var retrieveReceiptData = function (imageHash, metaDataHash) {
 
 var getReceiptJson = function(data) {
     if(data == undefined || ! (data instanceof Map)) {
-        return [];
+        return Promise.resolve([]);
     }
 
     let json = [];
     let receipts = Array.from(data.values());
 
-    console.log(receipts);
-    async.each(
-        // Collection
-        receipts,
-        // Async function
-        function (receipt, callback) {
-            retrieveReceiptData(receipt.imageHash, receipt.metadataHash)
-                .then( (data) => {
-                    json.push(
-                        {
-                            "id": receipt.receiptId,
-                            "blockNumber": receipt.blockNum,
-                            "image": data.image,
-                            "metadata" : data.metadata
-                        }
-                    );
-                });
-            console.log("LOOP");
-            console.log(receipt);
-            callback();
-        },
-        // callback
-        function (err) {
-            console.log("DONE");
-        }
-    );
-
-    console.log(" AFTER EACH ");
-    console.log(json);
-
-    return json;
+    return new Promise( (resolve, reject) => {
+        async.each(
+            // Collection
+            receipts,
+            // Async function
+            function (receipt, callback) {
+                retrieveReceiptData(receipt.imageHash, receipt.metadataHash)
+                    .then( (data) => {
+                        json.push(
+                            {
+                                "id": receipt.receiptId,
+                                "blockNumber": receipt.blockNum,
+                                "image": data.image,
+                                "metadata" : data.metadata
+                            }
+                        );
+                        callback();
+                    });
+            },
+            // callback
+            function (err) {
+                if(err) {
+                    console.log(err);
+                    reject(err);
+                }
+                console.log("DONE");
+                resolve(json);
+            }
+        )
+    });
 };
 
 var getMetadataJson = function(amount, purchaseType, purchaseDate) {
@@ -121,8 +120,11 @@ app.get('/receipts/:address', function (req, res) {
 
   return receiptDao.retrieveAllReceipts(address)
   .then( (receipts) => {
-    console.log(receipts.values());
-    res.jsonp(getReceiptJson(receipts));
+      console.log(receipts.values());
+      return getReceiptJson(receipts);
+  })
+  .then( (data) => {
+    res.jsonp(data);
   })
   .catch( (err) => {
       console.log(err);
@@ -137,7 +139,10 @@ app.get('/receipt/:id/address/:address', function (req, res) {
     return receiptDao.retrieveReceipt(address, id, 0)
     .then( (receipt) => {
         console.log(receipt);
-        res.jsonp(getReceiptJson(receipt));
+        return getReceiptJson(receipt);
+    })
+    .then( (data) => {
+        res.jsonp(data);
     })
     .catch( (err) => {
         console.log(err);
