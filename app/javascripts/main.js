@@ -46,29 +46,12 @@ var init = function (req, res, next) {
 };
 
 var retrieveReceiptMetaData = function (metaDataHash) {
-    return DocumentPersistence.retrieveDocument(metaDataHash)
+    return DocumentPersistence.retrieveDocumentAsBuffer(metaDataHash)
         .then((metadataData) => {
             if (metadataData !== undefined && metadataData instanceof Buffer) {
                 return JSON.parse(metadataData.toString());
             }
             return metadataData;
-        });
-};
-
-var retrieveReceiptImageData = function (imageHash) {
-    const data = {};
-    return DocumentPersistence.retrieveDocument(imageHash)
-        .then((imageData) => {
-            data.image = imageData;
-            console.log("IMAGE");
-            console.log(imageData);
-            return DocumentPersistence.retrieveDocument(metaDataHash);
-        })
-        .then((metadataData) => {
-            data.metadata = metadataData;
-            console.log("METADATA");
-            console.log(metadataData);
-            return data;
         });
 };
 
