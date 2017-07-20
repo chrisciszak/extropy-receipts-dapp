@@ -132,7 +132,7 @@ app.get('/receipts/:address', function (req, res) {
             return getReceiptJson(receipts);
         })
         .then((data) => {
-            res.jsonp(data);
+            res.json(data);
         })
         .catch((err) => {
             console.log(err);
@@ -149,7 +149,7 @@ app.get('/receipt/:id/address/:address', function (req, res) {
             return getReceiptJson(receipt);
         })
         .then((data) => {
-            res.jsonp(data);
+            res.json(data);
         })
         .catch((err) => {
             console.log(err);
@@ -200,7 +200,7 @@ app.post('/receipt', function (req, res) {
         })
         .then((result) => {
             json.metadata = result;
-            res.jsonp(json);
+            res.json(json);
         })
         .catch((err) => {
             console.log(err);
