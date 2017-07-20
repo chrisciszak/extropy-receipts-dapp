@@ -1,0 +1,77 @@
+{
+  "contract_name": "Mortal",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "kill",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "changeOwner",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "contractAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "msgSender",
+          "type": "address"
+        }
+      ],
+      "name": "ContractTerminated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "oldOwner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnerChanged",
+      "type": "event"
+    }
+  ],
+  "unlinked_binary": "0x60606040525b60008054600160a060020a03191633600160a060020a03161790555b5b6101bb806100316000396000f300606060405263ffffffff60e060020a60003504166341c0e1b581146100375780638da5cb5b14610049578063a6f9dae114610075575bfe5b341561003f57fe5b610047610093565b005b341561005157fe5b610059610101565b60408051600160a060020a039092168252519081900360200190f35b341561007d57fe5b610047600160a060020a0360043516610110565b005b60005433600160a060020a03908116911614156100fd5760408051600160a060020a0330811682523316602082015281517f9014317036a91f047fad688c0ee149a303811891885264d3f63cc00ecd62dce8929181900390910190a1600054600160a060020a0316ff5b5b5b565b600054600160a060020a031681565b6000805433600160a060020a0390811691161415610189575060008054600160a060020a03838116600160a060020a0319831681179093556040805191909216808252602082019390935281517fb532073b38c83145e3e5135377a08bf9aab55bc0fd7c1179cd4fb995d2a5159c929181900390910190a15b5b5b50505600a165627a7a723058208a0a7d0e6a3bd6d47ca7ac87e3f81e9bd0614dcbd473ae963b74cd0c05b4aa220029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1497602977325
+}

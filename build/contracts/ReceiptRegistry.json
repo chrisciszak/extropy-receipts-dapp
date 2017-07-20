@@ -1,0 +1,442 @@
+{
+  "contract_name": "ReceiptRegistry",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "receiptId",
+          "type": "string"
+        },
+        {
+          "name": "storeId",
+          "type": "uint8"
+        }
+      ],
+      "name": "deleteReceipt",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "receiptId",
+          "type": "string"
+        },
+        {
+          "name": "storeId",
+          "type": "uint8"
+        },
+        {
+          "name": "imageHash",
+          "type": "string"
+        },
+        {
+          "name": "metadataHash",
+          "type": "string"
+        }
+      ],
+      "name": "storeReceipt",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "kill",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "changeOwner",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "receiptId",
+          "type": "string"
+        },
+        {
+          "name": "storeId",
+          "type": "uint8"
+        },
+        {
+          "name": "imageHash",
+          "type": "string"
+        },
+        {
+          "name": "metadataHash",
+          "type": "string"
+        }
+      ],
+      "name": "updateReceipt",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "payable": false,
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "receiptOwner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "receiptId",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "name": "storeId",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "name": "imageHash",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "name": "metadataHash",
+          "type": "string"
+        }
+      ],
+      "name": "ReceiptStored",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "receiptOwner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "receiptId",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "name": "storeId",
+          "type": "uint8"
+        }
+      ],
+      "name": "ReceiptDeleted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "contractAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "msgSender",
+          "type": "address"
+        }
+      ],
+      "name": "ContractTerminated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "oldOwner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnerChanged",
+      "type": "event"
+    }
+  ],
+  "unlinked_binary": "0x6060604052341561000c57fe5b5b5b60008054600160a060020a03191633600160a060020a03161790555b5b5b6108048061003b6000396000f3006060604052361561005c5763ffffffff60e060020a6000350416630609189e811461005e57806336f1e874146100bb57806341c0e1b5146101955780638da5cb5b146101a7578063a6f9dae1146101d3578063a956ae1d146100bb575bfe5b341561006657fe5b6100b9600480803590602001908201803590602001908080601f016020809104026020016040519081016040528093929190818152602001838380828437509496505050923560ff1692506102cb915050565b005b34156100c357fe5b6100b9600480803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284375050604080516020601f818a01358b0180359182018390048302840183018552818452989a60ff8b35169a90999401975091955091820193509150819084018382808284375050604080516020601f89358b0180359182018390048302840183019094528083529799988101979196509182019450925082915084018382808284375094965061038e95505050505050565b005b341561019d57fe5b6100b9610525565b005b34156101af57fe5b6101b7610593565b60408051600160a060020a039092168252519081900360200190f35b34156101db57fe5b6100b9600160a060020a03600435166105a2565b005b34156100c357fe5b6100b9600480803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284375050604080516020601f818a01358b0180359182018390048302840183018552818452989a60ff8b35169a90999401975091955091820193509150819084018382808284375050604080516020601f89358b0180359182018390048302840183019094528083529799988101979196509182019450925082915084018382808284375094965061038e95505050505050565b005b33600160a060020a03167f0c9d67c050da0be6f375f4a168c590c3fb58c3a3efc23858ee6f0fc61c781acd838360405180806020018360ff1660ff16815260200182810382528481815181526020019150805190602001908083836000831461034f575b80518252602083111561034f57601f19909201916020918201910161032f565b505050905090810190601f16801561037b5780820380516001836020036101000a031916815260200191505b50935050505060405180910390a25b5050565b33600160a060020a03166000805160206107b98339815191528585858560405180806020018560ff1660ff168152602001806020018060200184810384528881815181526020019150805190602001908083836000831461040a575b80518252602083111561040a57601f1990920191602091820191016103ea565b505050905090810190601f1680156104365780820380516001836020036101000a031916815260200191505b5084810383528651815286516020918201918801908083838215610475575b80518252602083111561047557601f199092019160209182019101610455565b505050905090810190601f1680156104a15780820380516001836020036101000a031916815260200191505b50848103825285518152855160209182019187019080838382156104e0575b8051825260208311156104e057601f1990920191602091820191016104c0565b505050905090810190601f16801561050c5780820380516001836020036101000a031916815260200191505b5097505050505050505060405180910390a25b50505050565b60005433600160a060020a039081169116141561058f5760408051600160a060020a0330811682523316602082015281517f9014317036a91f047fad688c0ee149a303811891885264d3f63cc00ecd62dce8929181900390910190a1600054600160a060020a0316ff5b5b5b565b600054600160a060020a031681565b6000805433600160a060020a039081169116141561038a575060008054600160a060020a03838116600160a060020a0319831681179093556040805191909216808252602082019390935281517fb532073b38c83145e3e5135377a08bf9aab55bc0fd7c1179cd4fb995d2a5159c929181900390910190a15b5b5b5050565b33600160a060020a03166000805160206107b98339815191528585858560405180806020018560ff1660ff168152602001806020018060200184810384528881815181526020019150805190602001908083836000831461040a575b80518252602083111561040a57601f1990920191602091820191016103ea565b505050905090810190601f1680156104365780820380516001836020036101000a031916815260200191505b5084810383528651815286516020918201918801908083838215610475575b80518252602083111561047557601f199092019160209182019101610455565b505050905090810190601f1680156104a15780820380516001836020036101000a031916815260200191505b50848103825285518152855160209182019187019080838382156104e0575b8051825260208311156104e057601f1990920191602091820191016104c0565b505050905090810190601f16801561050c5780820380516001836020036101000a031916815260200191505b5097505050505050505060405180910390a25b50505050560015bc803209894544b760ef3f3048e6091022b5017a2f20b490c7e6e75ec24c98a165627a7a72305820cea186a55c48d68c005c38da43e8b9d18455cb89a354862e0e01ccde6ea412410029",
+  "networks": {
+    "4": {
+      "events": {
+        "0x15bc803209894544b760ef3f3048e6091022b5017a2f20b490c7e6e75ec24c98": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "receiptOwner",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "receiptId",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "name": "storeId",
+              "type": "uint8"
+            },
+            {
+              "indexed": false,
+              "name": "imageHash",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "name": "metadataHash",
+              "type": "string"
+            }
+          ],
+          "name": "ReceiptStored",
+          "type": "event"
+        },
+        "0x0c9d67c050da0be6f375f4a168c590c3fb58c3a3efc23858ee6f0fc61c781acd": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "receiptOwner",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "receiptId",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "name": "storeId",
+              "type": "uint8"
+            }
+          ],
+          "name": "ReceiptDeleted",
+          "type": "event"
+        },
+        "0x9014317036a91f047fad688c0ee149a303811891885264d3f63cc00ecd62dce8": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "contractAddress",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "msgSender",
+              "type": "address"
+            }
+          ],
+          "name": "ContractTerminated",
+          "type": "event"
+        },
+        "0xb532073b38c83145e3e5135377a08bf9aab55bc0fd7c1179cd4fb995d2a5159c": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "oldOwner",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnerChanged",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x4b8cb5dda2173516cbe0ca44912e0ecd18c163fe",
+      "updated_at": 1500471394688
+    },
+    "61066": {
+      "events": {
+        "0xd226ed2bc8a4081ee6d62540525cd9a44aa022eca68e344a7f7b924a75faeed5": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "message",
+              "type": "bytes32"
+            }
+          ],
+          "name": "LogEvent",
+          "type": "event"
+        },
+        "0x751774d82d9031da35c9e9a5fb707264c83387e26abbae42bf3a990160e87b3a": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "receiptOwner",
+              "type": "address"
+            }
+          ],
+          "name": "ReceiptStored",
+          "type": "event"
+        },
+        "0x2f5d38ca77c9c831f310f7b7d47996be0ecb14cef1d288e4c5018cb069ca6028": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "receiptOwner",
+              "type": "address"
+            }
+          ],
+          "name": "ReceiptUpdated",
+          "type": "event"
+        },
+        "0x1da35f3d7963e29d8dc519b3f30981f8d34e7f50b4e9cf59ec849524bd71f731": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "receiptOwner",
+              "type": "address"
+            }
+          ],
+          "name": "ReceiptDeleted",
+          "type": "event"
+        },
+        "0x9014317036a91f047fad688c0ee149a303811891885264d3f63cc00ecd62dce8": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "contractAddress",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "msgSender",
+              "type": "address"
+            }
+          ],
+          "name": "ContractTerminated",
+          "type": "event"
+        },
+        "0xb532073b38c83145e3e5135377a08bf9aab55bc0fd7c1179cd4fb995d2a5159c": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "oldOwner",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnerChanged",
+          "type": "event"
+        },
+        "0x15bc803209894544b760ef3f3048e6091022b5017a2f20b490c7e6e75ec24c98": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "receiptOwner",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "receiptId",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "name": "storeId",
+              "type": "uint8"
+            },
+            {
+              "indexed": false,
+              "name": "imageHash",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "name": "metadataHash",
+              "type": "string"
+            }
+          ],
+          "name": "ReceiptStored",
+          "type": "event"
+        },
+        "0x0c9d67c050da0be6f375f4a168c590c3fb58c3a3efc23858ee6f0fc61c781acd": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "receiptOwner",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "receiptId",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "name": "storeId",
+              "type": "uint8"
+            }
+          ],
+          "name": "ReceiptDeleted",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x27ed215d73a4a38396b31d3ecb46162cd1f60eb4",
+      "updated_at": 1497520306226
+    }
+  },
+  "schema_version": "0.0.5",
+  "updated_at": 1500471394688
+}
