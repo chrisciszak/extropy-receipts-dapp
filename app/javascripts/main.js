@@ -167,8 +167,24 @@ app.get('/receipt/:id/address/:address/image', function (req, res) {
             return DocumentPersistence.retrieveDocument(receiptData.imageHash);
         })
         .then( ( imageData) => {
-            res.writeHead(200, {'Content-Type': 'image/gif' });
-            res.end(imageData, 'binary');
+            res.type('png');
+            const options = {
+                root: '/',
+                dotfiles: 'deny',
+                headers: {
+                    'x-timestamp': Date.now(),
+                    'x-sent': true
+                }
+            };
+
+            res.sendFile(imageData, options, function (err) {
+                if (err) {
+                    console.log('Error: ' + err);
+                    next(err);
+                } else {
+                    console.log('Sent:', imageData);
+                }
+            });
         })
 });
 
