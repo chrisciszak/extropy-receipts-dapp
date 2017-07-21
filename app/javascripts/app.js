@@ -70,7 +70,7 @@ window.App = {
     console.log("BEFORE");
     $.ajax({
         dataType: "jsonp",
-        url: 'http://localhost:3145/receipts/'+account+'?jsoncallback=callback',
+        url: 'http://slave.extropy.io:3145/receipts/'+account,
         data: {},
         success: function( data ) {
             console.log("RECEIVED A RESPONSE");
